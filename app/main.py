@@ -10,6 +10,9 @@ from pydantic import BaseModel
 
 from app.services import mock_provider, rent_ledger
 
+from app.routers import voice
+app.include_router(voice.router)
+
 app = FastAPI(title="AI Landlord Agent")
 
 REPAIRS: dict[str, dict] = {}
