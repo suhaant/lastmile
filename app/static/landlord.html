@@ -8,7 +8,7 @@
 </head>
 <body>
 <div class="topbar">
-  <h1>🏢 Landlord</h1>
+  <h1>Landlord</h1>
   <span class="badge" id="live">● Live</span>
   <span class="spacer"></span>
   <span style="color:var(--dim);font-size:13px" id="counts"></span>
@@ -22,7 +22,7 @@
     <div id="repairs"><div class="sub" style="color:var(--dim)">None yet.</div></div>
   </aside>
   <main class="feed" id="feed">
-    <div class="empty" id="empty">⚡ The agent’s actions will appear here as they happen.<br>
+    <div class="empty" id="empty">The agent’s actions will appear here as they happen.<br>
       Open the tenant view in another window and report an issue.</div>
   </main>
 </div>
@@ -44,7 +44,7 @@ async function refresh() {
   const tenantsHtml = o.tenants.map(t => `
     <div class="trow">
       <div class="grow"><b>${t.name}</b> · ${t.unit}
-        <div class="sub">$${t.amount_due.toFixed(0)} due · ${t.due_date}</div></div>
+        <div class="sub">$${t.amount_due.toFixed(0)} · due ${new Date(t.due_date + 'T00:00:00').toLocaleDateString([], {month:'short', day:'numeric'})}</div></div>
       <span class="pill ${t.status}">${t.status}</span>
       ${t.status !== 'paid' ? (t.reminder_sent
         ? '<button class="ghost" disabled>Sent ✓</button>'
@@ -77,7 +77,7 @@ async function refresh() {
     for (const e of o.events.slice(eventCount)) {
       const el = document.createElement('div');
       el.className = 'msg agent';
-      el.innerHTML = `<div class="who">⚡ Agent · ${e.kind}</div><div>${e.text}</div>` +
+      el.innerHTML = `<div class="who">Agent · ${e.kind}</div><div>${e.text}</div>` +
         `<div class="ts">${new Date(e.ts).toLocaleTimeString([], {hour:'numeric',minute:'2-digit',second:'2-digit'})}</div>`;
       $('feed').appendChild(el);
     }

@@ -6,36 +6,36 @@
 <title>AI Landlord Agent</title>
 <link rel="stylesheet" href="/static/style.css">
 <style>
-  .hero { max-width: 720px; margin: 10vh auto; padding: 0 20px; text-align: center; }
-  .hero h1 { font-size: 30px; margin: 12px 0 6px; }
-  .hero p { color: var(--dim); }
-  .roles { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 36px; }
-  .role { display: block; text-decoration: none; color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 28px 20px; transition: border-color .15s; }
+  .hero { max-width: 720px; margin: 12vh auto; padding: 0 20px; text-align: center; }
+  .hero h1 { font-size: 28px; font-weight: 650; letter-spacing: -0.02em; margin: 16px 0 8px; }
+  .hero > p { color: var(--dim); max-width: 520px; margin: 0 auto; }
+  .roles { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 40px; text-align: left; }
+  .role { display: block; text-decoration: none; color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 24px; transition: border-color .15s; }
   .role:hover { border-color: var(--accent); }
-  .role .icon { font-size: 34px; }
-  .role h2 { margin: 10px 0 4px; }
-  .role p { font-size: 13px; }
+  .role .icon { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px; background: rgba(91, 124, 250, 0.12); color: var(--accent); }
+  .role h2 { font-size: 16px; margin: 14px 0 4px; }
+  .role p { font-size: 13px; color: var(--dim); }
   @media (max-width: 600px) { .roles { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
 <div class="hero">
   <span class="badge">Live demo</span>
-  <h1>🏠 AI Landlord Agent</h1>
+  <h1>AI Landlord Agent</h1>
   <p>Tenants report issues in plain English. The agent triages, books contractors, and keeps everyone in the loop — automatically.</p>
   <div class="roles">
     <a class="role" href="/tenant">
-      <div class="icon">🧑‍💼</div>
+      <div class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
       <h2>Tenant view</h2>
       <p>Report a problem, watch it get sorted, add the visit to your calendar.</p>
     </a>
     <a class="role" href="/landlord">
-      <div class="icon">🏢</div>
+      <div class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 9h1m4 0h1M9 13h1m4 0h1M9 17h1m4 0h1"/></svg></div>
       <h2>Landlord view</h2>
       <p>Live feed of everything the agent has done, plus rent at a glance.</p>
     </a>
   </div>
-  <p style="margin-top:28px;font-size:13px">Tip: open each view in its own window, side by side.</p>
+  <p style="margin-top:28px;font-size:13px;color:var(--dim)">Tip: open each view in its own window, side by side.</p>
 </div>
 </body>
 </html>
