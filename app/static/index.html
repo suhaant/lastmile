@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Landlord Agent</title>
+<link rel="stylesheet" href="/static/style.css">
+<style>
+  .hero { max-width: 720px; margin: 10vh auto; padding: 0 20px; text-align: center; }
+  .hero h1 { font-size: 30px; margin: 12px 0 6px; }
+  .hero p { color: var(--dim); }
+  .roles { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 36px; }
+  .role { display: block; text-decoration: none; color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 28px 20px; transition: border-color .15s; }
+  .role:hover { border-color: var(--accent); }
+  .role .icon { font-size: 34px; }
+  .role h2 { margin: 10px 0 4px; }
+  .role p { font-size: 13px; }
+  @media (max-width: 600px) { .roles { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="hero">
+  <span class="badge">Live demo</span>
+  <h1>🏠 AI Landlord Agent</h1>
+  <p>Tenants report issues in plain English. The agent triages, books contractors, and keeps everyone in the loop — automatically.</p>
+  <div class="roles">
+    <a class="role" href="/tenant">
+      <div class="icon">🧑‍💼</div>
+      <h2>Tenant view</h2>
+      <p>Report a problem, watch it get sorted, add the visit to your calendar.</p>
+    </a>
+    <a class="role" href="/landlord">
+      <div class="icon">🏢</div>
+      <h2>Landlord view</h2>
+      <p>Live feed of everything the agent has done, plus rent at a glance.</p>
+    </a>
+  </div>
+  <p style="margin-top:28px;font-size:13px">Tip: open each view in its own window, side by side.</p>
+</div>
+</body>
+</html>

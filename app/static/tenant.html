@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Landlord Agent — Tenant</title>
+<link rel="stylesheet" href="/static/style.css">
+<style>
+  body { display: flex; flex-direction: column; height: 100vh; }
+  .chat { flex: 1; overflow-y: auto; }
+  .rentchip { font-size: 13px; color: var(--dim); }
+  .composer { border-top: 1px solid var(--line); background: var(--panel); padding: 12px 20px 16px; }
+  .composer .inner { max-width: 760px; margin: 0 auto; }
+  .composer .row { display: flex; gap: 10px; margin-top: 8px; }
+  .composer textarea { flex: 1; resize: none; height: 44px; }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <h1>🧑‍💼 Tenant</h1>
+  <span class="badge">AI managed</span>
+  <span class="rentchip" id="rentchip"></span>
+  <span class="spacer"></span>
+  <select id="tenant" onchange="switchTenant()"></select>
+</div>
+
+<div class="chat" id="chat"></div>
+
+<div class="composer"><div class="inner">
+  <div>
+    <button class="ghost" onclick="preset('Water is leaking from a burst pipe under the kitchen sink, spreading fast!')">💧 Burst pipe</button>
+    <button class="ghost" onclick="preset('The bedroom outlet stopped working, lights are fine though.')">🔌 Dead outlet</button>
+    <button class="ghost" onclick="preset('Bathroom door handle is loose and squeaks.')">🚪 Loose handle</button>
+  </div>
+  <div class="row">
+    <textarea id="desc" placeholder="Describe a problem in your unit…"
+      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();send()}"></textarea>
+    <button onclick="send()">Send</button>
+  </div>
+</div></div>
+
+<script>
+const $ = id => document.getElementById(id);
+const api = (p, o) => fetch(p, o).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
+const seen = new Set();
+const queue = [];
+
+setInterval(() => { const f = queue.shift(); if (f) f(); }, 700);
+
+function bubble(who, text, ts, calHref) {
+  const el = document.createElement('div');
+  el.className = `msg ${who}`;
+  el.innerHTML = `<div class="who">${who === 'agent' ? '⚡ Agent' : 'You'}</div>` +
+    `<div>${text}</div>` +
+    (calHref ? `<a class="cal" href="${calHref}">📅 Add to calendar</a>` : '') +
+    (ts ? `<div class="ts">${new Date(ts).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})}</div>` : '');
+  $('chat').appendChild(el);
+  $('chat').scrollTop = $('chat').scrollHeight;
+}
+
+function greet(t) {
+  bubble('agent', `Hi ${t.name.split()[0]}! I manage repairs for unit ${t.unit}. ` +
+    `Describe any problem and I’ll get it sorted — triage, contractor, booking, the lot.`);
+}
+
+async function refresh(staged) {
+  const feed = await api(`/tenant/${$('tenant').value}/feed`);
+  const t = feed.tenant;
+  $('rentchip').textContent = `Rent: $${t.amount_due.toFixed(0)} due · ${t.status}`;
+  for (const r of feed.repairs) {
+    r.timeline.forEach((m, i) => {
+      const key = `${r.id}-${i}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      const last = i === r.timeline.length - 1 && r.status === 'booked';
+      const add = () => bubble('agent', m.text, m.ts, last ? `/repairs/${r.id}/calendar.ics` : null);
+      staged ? queue.push(add) : add();
+    });
+  }
+}
+
+function switchTenant() {
+  $('chat').innerHTML = ''; seen.clear(); queue.length = 0;
+  api(`/rent/status/${$('tenant').value}`).then(greet).then(() => refresh(false));
+}
+
+function preset(text) { $('desc').value = text; $('desc').focus(); }
+
+async function send() {
+  const text = $('desc').value.trim();
+  if (!text) return;
+  $('desc').value = '';
+  bubble('user', text, new Date().toISOString());
+  await api('/repairs/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ tenant_id: $('tenant').value, description: text }) });
+  refresh(true);
+}
+
+async function init() {
+  const tenants = await api('/rent/tenants');
+  $('tenant').innerHTML = tenants.map(t =>
+    `<option value="${t.tenant_id}">${t.name} — unit ${t.unit}</option>`).join('');
+  switchTenant();
+  setInterval(() => refresh(true), 3000);
+}
+init();
+</script>
+</body>
+</html>

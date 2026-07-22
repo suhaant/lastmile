@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Landlord Agent — Landlord</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="topbar">
+  <h1>🏢 Landlord</h1>
+  <span class="badge" id="live">● Live</span>
+  <span class="spacer"></span>
+  <span style="color:var(--dim);font-size:13px" id="counts"></span>
+</div>
+
+<div class="split">
+  <aside class="sidebar">
+    <h2>Rent at a glance</h2>
+    <div id="tenants"></div>
+    <h2>Repairs</h2>
+    <div id="repairs"><div class="sub" style="color:var(--dim)">None yet.</div></div>
+  </aside>
+  <main class="feed" id="feed">
+    <div class="empty" id="empty">⚡ The agent’s actions will appear here as they happen.<br>
+      Open the tenant view in another window and report an issue.</div>
+  </main>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const api = (p, o) => fetch(p, o).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
+let eventCount = 0;
+let lastSidebar = '';
+
+function remind(tid, btn) {
+  btn.disabled = true; btn.textContent = 'Sent ✓';
+  fetch(`/rent/remind/${tid}`, { method: 'POST' }).then(refresh);
+}
+
+async function refresh() {
+  const o = await api('/landlord/overview');
+
+  const tenantsHtml = o.tenants.map(t => `
+    <div class="trow">
+      <div class="grow"><b>${t.name}</b> · ${t.unit}
+        <div class="sub">$${t.amount_due.toFixed(0)} due · ${t.due_date}</div></div>
+      <span class="pill ${t.status}">${t.status}</span>
+      ${t.status !== 'paid' ? (t.reminder_sent
+        ? '<button class="ghost" disabled>Sent ✓</button>'
+        : `<button class="ghost" onclick="remind('${t.tenant_id}', this)">Remind</button>`) : ''}
+    </div>`).join('');
+
+  const repairsHtml = o.repairs.length ? o.repairs.map(r => `
+      <div class="trow">
+        <div class="grow"><b>${r.id}</b> · ${r.category}
+          <div class="sub">${r.booked_slot ? r.booked_slot.contractor : '—'}</div></div>
+        <span class="pill ${r.urgency}">${r.urgency}</span>
+      </div>`).join('')
+    : '<div class="sub" style="color:var(--dim)">None yet.</div>';
+
+  // only touch the DOM when data changed, so Remind buttons aren't
+  // replaced out from under a click by the 2s poll
+  if (tenantsHtml + repairsHtml !== lastSidebar) {
+    lastSidebar = tenantsHtml + repairsHtml;
+    $('tenants').innerHTML = tenantsHtml;
+    $('repairs').innerHTML = repairsHtml;
+  }
+
+  const open = o.repairs.filter(r => r.status !== 'done').length;
+  const overdue = o.tenants.filter(t => t.status === 'overdue').length;
+  $('counts').textContent = `${open} active repairs · ${overdue} tenants overdue`;
+
+  if (o.events.length > eventCount) {
+    $('empty')?.remove();
+    for (const e of o.events.slice(eventCount)) {
+      const el = document.createElement('div');
+      el.className = 'msg agent';
+      el.innerHTML = `<div class="who">⚡ Agent · ${e.kind}</div><div>${e.text}</div>` +
+        `<div class="ts">${new Date(e.ts).toLocaleTimeString([], {hour:'numeric',minute:'2-digit',second:'2-digit'})}</div>`;
+      $('feed').appendChild(el);
+    }
+    eventCount = o.events.length;
+    $('feed').scrollTop = $('feed').scrollHeight;
+  }
+}
+
+refresh();
+setInterval(refresh, 2000);
+</script>
+</body>
+</html>
